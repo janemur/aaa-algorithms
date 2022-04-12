@@ -1,0 +1,6 @@
+def solution():
+    arr = list(map(int, input().split()))
+    k = int(input())
+    print(sorted(arr)[k])
+
+solution()
