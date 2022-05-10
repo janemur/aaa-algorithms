@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 import pandas as pd
@@ -12,145 +12,132 @@ df=pd.read_csv('simple_english_wiki_pagelinks.csv')
 # Начиная джойнить каждый "слой" ищем, где содержится ALgorithm
 # В итоге находим его на 4
 
-# In[34]:
+# In[2]:
 
 
 df.head()
 
 
-# In[35]:
+# ### Решение к заданию 1 и 2
+
+# In[3]:
 
 
-an = df[df['pl_from'] == 747593]
+# Создаем первый слой, где оставляем только строки, которые ведут от Analytics. Его id 747593. 
+lvl1 = df[df['pl_from'] == 747593]
+lvl1
 
 
-# In[ ]:
+# In[4]:
 
 
-
-
-
-# In[36]:
-
-
-an
-
-
-# In[37]:
-
-
-lvl2 = pd.merge(an, df, how="left", left_on=['pl_to'], right_on=["pl_from"])
-
-
-# In[38]:
-
-
+# Джойним первый слой
+lvl2 = pd.merge(lvl1, df, how="left", left_on=['pl_to'], right_on=["pl_from"])
 lvl2
 
 
-# In[39]:
+# In[5]:
 
 
+# Джойним второй слой
 lvl3 = pd.merge(lvl2, df, how="left", left_on=['pl_to_y'], right_on=["pl_from"])
-lvl3[lvl3['pl_title']=='Logic']
+lvl3
 
 
-# In[40]:
+# In[6]:
+
+
+# Проверим смогли ли мы добраться до ALgorithm за третий уровень.  
+lvl3[lvl3['pl_title']=='Algorithm']
+# Результатов нет, джойним еще уровень
+
+
+# In[7]:
 
 
 lvl4 = pd.merge(lvl3, df, how="inner", left_on=['pl_to'], right_on=["pl_from"])
 lvl4
 
 
-# In[41]:
+# In[8]:
 
 
-lvl4.columns = [1,2,3,4,5,6,7,8,9,10, 11,12]
+# Переименуем колнны в удобный вид для дальнейшего исследования
+lvl4.columns = [1,2,3,4,5,6,7,8,9,10,11,12]
 
 
-# In[42]:
+# In[9]:
 
 
+# Проверим получилось ли сейчас дойди до Algorithm. 
 lvl4[lvl4[11]=='Algorithm']
+# Результаты найдены
 
 
-# ### Задание 1 и 2
+# In[10]:
+
+
+l4 = lvl4[lvl4[11]=='Algorithm']
+
+
+# In[11]:
+
+
+(l4[2]+l4[5]+l4[8]+l4[11]).str.len().min()
+
+
+# ### Ответ на задание 1 и 2
 # Минимальный путь равен 4, для ответа на задание 2 подойдет любой из путей из столбца 8. Как вариант -- Logic
 
-# In[43]:
+# ### Решение к  заданию 3 и 4
 
-
-lvl4[lvl4[11]=='Algorithm']
-
-
-# In[44]:
+# In[12]:
 
 
 lvl5 = pd.merge(lvl4, df, how="inner", left_on=[12], right_on=["pl_from"])
 lvl5
 
 
-# In[45]:
+# In[13]:
 
 
-lvl5[(lvl5['pl_title'] == 'Algorithm') & (lvl5[11] == 'Logic') & (lvl5[2] != 'Computer_programming')]
+l5 = lvl5[lvl5['pl_title']=='Algorithm']
 
 
-# In[46]:
+# In[14]:
 
 
-lvl5[13] = lvl5[2]+lvl5[5]+lvl5[8]+lvl5[11]
-lvl5.head(67)
+# Посчитаем минимальный путь для пятого слоя, получаем 30
+(l5[2]+l5[5]+l5[8]+l5[11]+l5['pl_title']).str.len().min()
 
 
-# In[47]:
+# In[15]:
 
 
-lvl5.head(15)
+lvl5 = lvl5[(lvl5[2]!='Computer_programming') & (lvl5['pl_title']=='Logic')]
 
 
-# In[48]:
+# In[16]:
 
 
-lvl4[lvl4[11] == 'Algorithm']
+# Создаем 6-ой слой
+lvl6 = pd.merge(lvl5, df, how="inner", left_on=['pl_to'], right_on=["pl_from"])
+lvl6
 
 
-# In[49]:
+# In[17]:
 
 
-lvl4[12] = lvl4[2]+lvl4[5]+lvl4[8]+lvl4[11]
+l6 = lvl6[lvl6['pl_title_y']=='Algorithm']
 
 
-# ### Задание 3 и 4
-# Минимальный путь лежит из Logic, его длина 29
-
-# In[50]:
+# In[18]:
 
 
-lvl4[(lvl4[11] == 'Algorithm')]
+# Получаем минимальный путь - 29
+(l6[2]+l6[5]+l6[8]+l6[11]+l6['pl_title_x']+l6['pl_title_y']).str.len().min()
 
 
-# In[51]:
+# ### Ответ к заданиям 3 и 4
 
-
-l = lvl4.iloc[:,-2]
-l[l == 'Algorithm']
-
-
-# In[52]:
-
-
-lvl5 = lvl5[(lvl5[2]!='Computer_programming') ]
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
+# Минимальный путь - 29. На него ведет статья Logic 
